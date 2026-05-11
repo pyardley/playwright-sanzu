@@ -1,0 +1,31 @@
+{
+  "name": "playwright-sanzu",
+  "version": "1.0.0",
+  "description": "Playwright TypeScript PCOM test suite for Oracle APEX Sanzu E-commerce Portal",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:home": "playwright test tests/home",
+    "test:cart": "playwright test tests/cart",
+    "test:checkout": "playwright test tests/checkout",
+    "test:auth": "playwright test tests/auth",
+    "test:setup": "playwright test seed.spec.ts",
+    "test:guest": "playwright test --project=chromium-guest",
+    "test:mobile": "playwright test --project=mobile-safari",
+    "agent:plan": "playwright test seed.spec.ts --project=setup && npx playwright plan",
+    "agent:generate": "npx playwright generate",
+    "agent:heal": "npx playwright heal",
+    "report": "playwright show-report",
+    "codegen": "playwright codegen",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.0.0",
+    "dotenv": "^16.4.5",
+    "typescript": "^5.5.0"
+  }
+}
