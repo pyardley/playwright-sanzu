@@ -1,0 +1,94 @@
+Run with
+```
+Get-Content .\specs\generator-prompt.txt -Raw | claude --allowedTools "mcp__playwright-test__*,Glob,Grep,Read,LS" -p "@playwright-test-generator Follow the instructions in the piped content"
+```
+
+Generate Playwright test code for the Sanzu e-commerce portal by working through every
+test case defined in specs/sanzu.plan.md.
+
+PLAN FILE: specs/sanzu.plan.md
+SEED FILE: seed.spec.ts
+FIXTURES:  fixtures/fixtures.ts
+
+---
+
+WORKFLOW — repeat for EVERY test case in the plan, in document order:
+
+1. Read the next test case from specs/sanzu.plan.md.
+2. Call generator_setup_page to initialise the browser for that scenario.
+3. Execute each numbered step and expectation from the test case using the
+   Playwright browser tools, in order. Use the step text as the intent for
+   each tool call.
+4. Call generator_read_log to retrieve the recorded interactions.
+5. Call generator_write_test immediately after reading the log, saving the
+   generated spec to the path specified in the test case's "File:" field.
+
+Do not skip any test case. Do not batch multiple tests into a single file
+unless the plan's "File:" fields are identical.
+
+---
+
+PCOM CONVENTIONS (mandatory — enforced by the fixture layer):
+
+- Import line (every file): import { test, expect } from '../../fixtures/fixtures';
+- Never import from @playwright/test directly.
+- Never call new HomePage(), new CartPage(), etc. inside a test.
+- Declare fixture page objects as destructured function parameters:
+    async ({ homePage }) => { ... }
+    async ({ homePage, cartPage }) => { ... }
+    async ({ loginPage }) => { ... }
+    async ({ productDetailPage, homePage }) => { ... }
+    async ({ cartPage, checkoutPage }) => { ... }
+- Access components through the page object:
+    homePage.header          — HeaderComponent
+    homePage.smartFilter     — SmartFilterComponent
+    homePage.header.search() — fills search input + Enter
+    homePage.header.goToCart()
+    homePage.header.getCartTotal()
+- The homePage fixture auto-navigates to /home and waits for APEX ready.
+  Do NOT call homePage.goto() again at the start of home-page tests.
+- Wrap each logical step in a comment matching the plan step text (do not
+  duplicate the comment when one step requires multiple tool calls).
+
+---
+
+TEST DESCRIBE / TITLE RULES:
+
+- describe block: verbatim area name from the plan (e.g. '1 — Home Page',
+  '2 — Search and Filtering').
+- test title: verbatim scenario name from the plan (e.g. 'HP-01 — Product
+  grid renders all catalogue items').
+
+---
+
+APEX-SPECIFIC NOTES:
+
+- After every APEX action (Add to Cart, form submit, search, filter),
+  wait for networkidle before making assertions.
+- Never use dynamic APEX IDs (P1_ADD_PRODUCT, P42_PID_ORG, etc.) as
+  locators — use ARIA role, label, or placeholder instead.
+- Cart detail URL must include the query param:
+    /org-wise-cart-detail1?p42_pid_org=1
+- Guest users are redirected to /login_desktop when accessing cart,
+  Add to Cart, and other authenticated pages — plan for this in guest tests.
+- Negative authentication tests (invalid credentials) MUST use:
+    test.retry(0)
+  to prevent APEX throttling repeated failed login attempts.
+- The storageState for authenticated tests is .auth/user.json, produced
+  automatically by the setup project (seed.spec.ts) before auth-dependent
+  tests run.
+
+---
+
+OUTPUT PATHS — use exactly the "File:" path from the plan for each test case.
+Examples from the plan:
+  tests/home/hp-01-product-grid.spec.ts
+  tests/home/hp-02-discount-strip.spec.ts
+  tests/search/sf-01-search-by-name.spec.ts
+  tests/auth/auth-01-login-happy-path.spec.ts
+  tests/product-detail/pd-01-navigate-via-image-link.spec.ts
+  tests/cart/cart-01-add-product-updates-total.spec.ts
+  tests/checkout/co-01-proceed-to-checkout.spec.ts
+
+Create any missing subdirectory implicitly via the file path — generator_write_test
+handles directory creation.
