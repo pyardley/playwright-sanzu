@@ -50,12 +50,12 @@ export default defineConfig({
     {
       name: 'chromium-guest',
       use: { ...devices['Desktop Chrome'] },
-      testMatch: /home\.spec\.ts/,
+      testMatch: /tests[\\/]home[\\/]/,
     },
     {
       name: 'mobile-safari',
       use: { ...devices['iPhone 14'] },
-      testMatch: /home\.spec\.ts/,
+      testMatch: /tests[\\/]home[\\/]/,
     },
   ],
 });

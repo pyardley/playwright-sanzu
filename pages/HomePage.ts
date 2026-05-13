@@ -21,8 +21,9 @@ export class HomePage extends BasePage {
     this.productGrid  = page.locator('ul').filter({
       has: page.getByRole('button', { name: 'Add to Cart' }),
     }).first();
-    // The top "Discount Offer / HOT" strip contains product links (no Add to Cart)
-    this.discountOfferStrip = page.locator('*').filter({ hasText: /^Discount Offer/ }).first();
+    // The top "Discount Offer / HOT" strip is a scrolling ticker with product links (no Add to Cart).
+    // APEX renders it inside #stiker-container or a div with class ticker_holder.
+    this.discountOfferStrip = page.locator('#stiker-container, .ticker_holder, [id*="ticker"]').first();
     this.noResultsMessage   = page.getByText(/no products|no results|nothing found/i).first();
   }
 

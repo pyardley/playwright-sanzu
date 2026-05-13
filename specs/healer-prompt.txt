@@ -1,0 +1,95 @@
+Run with
+```
+Get-Content .\specs\healer-prompt.txt -Raw | claude --allowedTools "mcp__playwright-test__*,Glob,Grep,Read,LS,Edit,Write" -p "@playwright-test-healer Follow the instructions in the piped content"
+```
+
+You are healing the Playwright test suite for the Sanzu e-commerce portal.
+
+PROJECT ROOT: C:\Users\PaulYardley\Projects\Playwright_Sanzu
+
+---
+
+STEP 1 — DISCOVER FAILURES
+
+Run the full test suite using test_run. The config defines four projects:
+
+  setup          — runs seed.spec.ts (auth bootstrap, project root)
+  chromium-auth  — all tests under tests/ with storageState .auth/user.json
+  chromium-guest — tests/home/ only, no storageState
+  mobile-safari  — tests/home/ only, iPhone 14 viewport
+
+Focus healing on chromium-guest and chromium-auth. Do not modify seed.spec.ts.
+
+---
+
+STEP 2 — DEBUG AND FIX EACH FAILURE
+
+For each failing test:
+1. Run test_debug to pause at the point of failure.
+2. Use browser_snapshot to capture the live DOM at the moment of failure.
+3. Use browser_generate_locator to identify the correct locator for any element
+   that cannot be found.
+4. Use browser_evaluate or browser_console_messages if the error is a JS
+   runtime issue or an APEX AJAX failure.
+5. Edit the smallest unit that fixes the failure:
+   - Prefer editing a component or page class if the locator is reused
+     across multiple tests (one change fixes many).
+   - Edit a spec file directly only if the issue is test-logic specific.
+6. Re-run the test to verify the fix before moving to the next failure.
+
+---
+
+PCOM STRUCTURE (do not bypass these abstractions):
+
+  pages/         → BasePage, HomePage, LoginPage, CartPage,
+                   ProductDetailPage, CheckoutPage
+  components/    → BaseComponent, HeaderComponent, ProductCardComponent,
+                   SmartFilterComponent, LoginFormComponent,
+                   CartSummaryComponent
+  fixtures/      → fixtures.ts  (test.extend — all page objects injected here)
+
+All test files import from ../../fixtures/fixtures, never from @playwright/test.
+Never instantiate page or component classes directly inside a test.
+
+---
+
+APEX SYNCHRONISATION RULES (critical — do not violate):
+
+- waitForLoadState('networkidle') calls in BasePage, page classes, and
+  component classes are INTENTIONAL. APEX fires AJAX region refreshes and
+  dynamic actions after every navigation and form submission. Do NOT remove
+  these calls.
+- waitForApexReady() in BasePage guards APEX JS initialisation — keep it.
+- If a networkidle wait is the suspected cause of flakiness, replace it with
+  a more targeted wait (waitForResponse, waitForSelector, locator.waitFor())
+  rather than deleting it.
+- Never add bare page.waitForTimeout() calls.
+- Dynamic APEX element IDs (P1_ADD_PRODUCT, P42_PID_ORG, etc.) must not be
+  used as locators — use ARIA role, label, or placeholder instead.
+
+---
+
+KNOWN BEHAVIOURAL CONSTRAINTS (baked in by design — do not "fix" these):
+
+- Search requires authentication. Guest users are redirected to /login_desktop
+  when submitting the search form. Tests that search must run under
+  chromium-auth.
+- Add to Cart requires authentication. Guest users are redirected to login.
+  Tests HP-07 and any cart tests run correctly under chromium-guest and
+  chromium-auth respectively.
+- Cart detail URL requires the query param: /org-wise-cart-detail1?p42_pid_org=1
+- Negative authentication tests use test.retry(0) to prevent APEX login
+  throttling — do not remove this.
+- The homePage fixture auto-navigates to /home. Tests must not call
+  homePage.goto() a second time at the start unless explicitly re-navigating
+  after an action.
+
+---
+
+FIXME THRESHOLD:
+
+If a test fails after two fix attempts and you are confident the test logic is
+correct but the application behaviour is inconsistent or the element is
+genuinely absent, mark it test.fixme() and add a comment on the line above the
+failing assertion explaining what the application does instead of the expected
+behaviour. Do not leave a test in a broken state.

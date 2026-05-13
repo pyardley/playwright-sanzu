@@ -19,14 +19,19 @@ export class HeaderComponent extends BaseComponent {
     this.navRoot       = root;
     // Sidebar cart widget — present on home page, targets the cart detail page
     this.cartWidget    = page.getByRole('table', { name: /cart region/i }).first();
-    this.cartTotal     = page.getByRole('link', { name: /^\d/ }).filter({ hasText: /\.00/ }).first();
+    // Cart total link lives inside the Cart Region table; scope to that table to avoid
+    // matching product price links elsewhere on the page that also start with digits.
+    this.cartTotal     = page.getByRole('table', { name: /cart region/i }).getByRole('link').first();
     this.myAccountBtn  = page.getByRole('button', { name: /my account/i }).first();
     // When logged in, the username appears as a button in the nav list
     this.userMenuTrigger = page.locator('header').getByRole('list').getByRole('button').last();
     // Actual placeholder text confirmed from live page snapshot
     this.searchInput   = page.getByPlaceholder('Search Product').first();
-    // Guest state only
-    this.loginLink     = page.getByRole('link', { name: /log.?in|sign.?in/i }).first();
+    // Guest state only — on mobile the nav link is icon-only (no accessible text),
+    // so also match by href pattern as a fallback.
+    this.loginLink     = page.getByRole('link', { name: /log.?in|sign.?in/i })
+      .or(page.locator('a[href*="login_desktop"]'))
+      .first();
     this.logoutLink    = page.getByRole('link', { name: /log.?out|sign.?out/i }).first();
   }
 

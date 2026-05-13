@@ -13,21 +13,21 @@ test.describe('1 — Home Page', () => {
     await homePage.waitForProducts();
     const productGrid = homePage.productGrid;
 
-    // expect: Text 'Offer ends..' is visible in the product grid
-    await expect(productGrid.getByText('Offer ends..')).toBeVisible();
+    // expect: countdown timer elements are visible in the product grid.
+    // Note: "Offer ends.." text is rendered via CSS ::before pseudo-element on .countdown-button
+    // and cannot be matched by getByText — use the CSS class selector instead.
+    await expect(productGrid.locator('.countdown').first()).toBeVisible();
 
     // expect: Four numeric counters (Days, Hrs, Min, Sec) are visible
-    await expect(productGrid.getByText('Days').first()).toBeVisible();
-    await expect(productGrid.getByText('Hrs').first()).toBeVisible();
-    await expect(productGrid.getByText('Min').first()).toBeVisible();
-    await expect(productGrid.getByText('Sec').first()).toBeVisible();
+    await expect(productGrid.locator('.time-label', { hasText: 'Days' }).first()).toBeVisible();
+    await expect(productGrid.locator('.time-label', { hasText: 'Hrs' }).first()).toBeVisible();
+    await expect(productGrid.locator('.time-label', { hasText: 'Min' }).first()).toBeVisible();
+    await expect(productGrid.locator('.time-label', { hasText: 'Sec' }).first()).toBeVisible();
 
-    // Step 3: Assert the Redmi 15 card (no discount, pid_product=13) does NOT show countdown.
-    // The Redmi 15 list item heading uses the format "Product Pic 19,999.00" with no countdown.
-    // expect: The Redmi 15 list item heading does not include countdown text
-    const redmiHeading = page.getByRole('heading', { name: 'Product Pic 19,999.00' });
-    await expect(redmiHeading).toBeVisible();
-    // Confirm the heading text does NOT contain 'Offer ends..'
-    await expect(redmiHeading).not.toContainText('Offer ends..');
+    // Step 3: Assert the Redmi 15 card (no discount) does NOT show a countdown timer.
+    // Find its <li> by locating the card whose title contains 'Redmi'.
+    const redmiCard = productGrid.locator('li').filter({ hasText: /redmi/i }).first();
+    await expect(redmiCard).toBeVisible();
+    await expect(redmiCard.locator('.countdown')).not.toBeVisible();
   });
 });

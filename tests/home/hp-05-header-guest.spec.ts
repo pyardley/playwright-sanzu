@@ -13,10 +13,16 @@ test.describe('1 — Home Page', () => {
     await expect(homePage.header.searchInput).toBeVisible();
 
     // Step 3: Assert the nav list contains a 'Login' link and a 'Sign Up' link.
-    // expect: Link with text 'Login' exists in the nav list
-    await expect(page.getByRole('link', { name: 'Login', exact: true })).toBeVisible();
-    // expect: Link with text 'Sign Up' exists in the nav list
-    await expect(page.getByRole('link', { name: 'Sign Up' })).toBeVisible();
+    // Note: on mobile APEX hides nav text labels (display:none on .t-Button-label),
+    // so the Login link is matched by href instead of accessible name.
+    // expect: A link to the login page exists in the nav list
+    await expect(homePage.header.loginLink).toBeVisible();
+    // expect: Link with text 'Sign Up' exists in the nav list (or by href pattern)
+    await expect(
+      page.getByRole('link', { name: 'Sign Up' })
+        .or(page.locator('a[href*="sign-up"]'))
+        .first()
+    ).toBeVisible();
 
     // Step 4: Assert NO username button is visible (guest state only has Home, Login, Sign Up).
     // expect: No button matching the authenticated username pattern is visible in the nav list
@@ -34,10 +40,16 @@ test.describe('1 — Home Page', () => {
 
     // Step 6: Click the 'Demo Organization' logo link in the header.
     // expect: Browser stays on or re-navigates to /home
-    await page.getByRole('link', { name: 'Demo Organization' }).nth(1).click();
+    // Use first() since mobile renders one Demo Organization link while desktop renders two.
+    await page.getByRole('link', { name: 'Demo Organization' }).first().click();
     // expect: Page title remains 'Home'
     await expect(page).toHaveTitle('Home');
     await expect(page).toHaveURL(/\/home/);
-    await expect(page.getByRole('link', { name: 'Home' })).toBeVisible();
+    // Home link may have icon-only label on mobile, match by href as fallback
+    await expect(
+      page.getByRole('link', { name: 'Home' })
+        .or(page.locator('a[href*="/home"]'))
+        .first()
+    ).toBeVisible();
   });
 });

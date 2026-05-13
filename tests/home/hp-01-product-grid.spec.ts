@@ -57,10 +57,12 @@ test.describe('1 — Home Page', () => {
 
     // Step 4: Assert the Discount Offer / HOT strip is visible.
     // expect: Strip is visible and contains at least one product link
+    // Note: the discount strip is a scrolling ticker — individual links may be off-screen.
+    // Assert the strip container is visible and that at least one link exists (count > 0).
     await expect(homePage.discountOfferStrip).toBeVisible();
     await expect(page.getByText('Discount Offer')).toBeVisible();
-    await expect(page.getByText('HOT')).toBeVisible();
+    await expect(page.getByText('HOT', { exact: true }).first()).toBeVisible();
     const stripLinks = homePage.discountOfferStrip.getByRole('link');
-    await expect(stripLinks.first()).toBeVisible();
+    expect(await stripLinks.count()).toBeGreaterThan(0);
   });
 });

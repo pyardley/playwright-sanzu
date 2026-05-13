@@ -37,11 +37,43 @@ export class ProductCardComponent extends BaseComponent {
   }
 
   async getOriginalPrice(): Promise<string> {
-    return (await this.originalPrice.textContent())?.trim() ?? '';
+    return (await this.originalPrice.textContent({ timeout: 2_000 }).catch(() => null))?.trim() ?? '';
   }
 
   async getSalePrice(): Promise<string> {
-    return (await this.salePrice.textContent())?.trim() ?? '';
+    // APEX renders the sale price as a text node or bare element adjacent to <del>/<s>.
+    // The class-based locator is kept as a fast path; the evaluate fallback walks the DOM.
+    const fast = await this.salePrice.textContent({ timeout: 2_000 }).catch(() => null);
+    if (fast?.trim()) return fast.trim();
+    return this.root.evaluate((li: HTMLElement) => {
+      const del = li.querySelector('del, s');
+      if (del) {
+        // Products WITH discount: price is the text/element after <del>
+        const nextEl = del.nextElementSibling;
+        if (nextEl && !/^(del|s)$/i.test(nextEl.tagName)) {
+          const t = nextEl.textContent?.trim() ?? '';
+          if (t && /\d/.test(t)) return t;
+        }
+        let node: Node | null = del.nextSibling;
+        while (node) {
+          const t = (node.textContent ?? '').trim();
+          if (t && /\d/.test(t)) return t;
+          node = node.nextSibling;
+        }
+      }
+      // Products WITHOUT discount: price is a bare text node in the h3, after the image link
+      const h3 = li.querySelector('h3');
+      if (h3) {
+        // Walk h3 text nodes directly, skip child elements
+        const walker = document.createTreeWalker(h3, NodeFilter.SHOW_TEXT);
+        let n: Node | null;
+        while ((n = walker.nextNode())) {
+          const t = (n.textContent ?? '').trim();
+          if (t && /[\d,]+\.\d{2}/.test(t)) return t;
+        }
+      }
+      return '';
+    });
   }
 
   async getDiscountText(): Promise<string | null> {

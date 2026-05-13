@@ -25,7 +25,7 @@ export class LoginFormComponent extends BaseComponent {
       .or(page.locator('.t-Button--hot'))
       .first();
     this.errorMessage = page
-      .locator('.t-Alert--danger, #APEX_ERROR_MESSAGE, .apex-error')
+      .locator('#t_Alert_Notification, .t-Alert--danger, .t-Alert--warning, #APEX_ERROR_MESSAGE, .apex-error')
       .first();
     this.rememberMe = page.getByLabel(/remember/i).first();
   }
@@ -41,9 +41,14 @@ export class LoginFormComponent extends BaseComponent {
   }
 
   async getError(): Promise<string | null> {
-    if (await this.errorMessage.isVisible({ timeout: 5_000 }).catch(() => false)) {
-      return (await this.errorMessage.textContent())?.trim() ?? null;
-    }
-    return null;
+    // APEX renders the error/throttle notification in #t_Alert_Notification (inside #APEX_ERROR_MESSAGE).
+    // Use page.locator() to look for the alert region by its specific alert heading.
+    // Check for the alert element using waitFor to avoid race conditions.
+    const alertRegion = this.page.locator('#t_Alert_Notification[role="region"]');
+    const text = await alertRegion.textContent({ timeout: 5_000 }).catch(() => null);
+    if (text?.trim()) return text.trim();
+    // Fallback: broader selector
+    const text2 = await this.errorMessage.textContent({ timeout: 2_000 }).catch(() => null);
+    return text2?.trim() || null;
   }
 }
