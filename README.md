@@ -29,21 +29,95 @@ TEST_USER_PASSWORD=yourpassword
 
 ## Running the tests
 
-```powershell
-# Bootstrap — creates .auth/user.json (run once, or after session expiry)
-npx playwright test --project=setup
+### Bootstrap
 
-# Home page tests (guest, no auth required)
+```powershell
+# Create .auth/user.json (run once, or after session expiry)
+npx playwright test --project=setup
+```
+
+### By project
+
+```powershell
+# Home page tests — guest browser, no auth
 npx playwright test tests/home/ --project=chromium-guest
 
 # All authenticated tests
 npx playwright test --project=chromium-auth
 
-# Full suite (setup → auth → guest)
+# Full suite (setup → chromium-auth → chromium-guest → mobile-safari)
 npx playwright test
+```
 
-# Open HTML report
+### By area or file
+
+```powershell
+# Single test area
+npx playwright test tests/home/
+npx playwright test tests/cart/
+npx playwright test tests/auth/
+
+# Single spec file
+npx playwright test tests/home/hp-01-product-grid.spec.ts
+
+# Tests whose title matches a pattern (case-insensitive)
+npx playwright test --grep "cart"
+npx playwright test --grep "HP-0[1-4]"
+
+# Exclude a pattern
+npx playwright test --grep-invert "checkout"
+```
+
+### Headed vs headless
+
+```powershell
+# Run headed (watch the browser)
+$env:HEADLESS="false"; npx playwright test tests/home/ --project=chromium-guest
+
+# Run headless explicitly (default)
+$env:HEADLESS="true"; npx playwright test
+
+# Playwright UI mode — interactive test explorer and time-travel debugger
+npx playwright test --ui
+```
+
+### Debugging
+
+```powershell
+# Pause on first failure and open inspector
+npx playwright test --debug
+
+# Pause on first failure in a specific file
+npx playwright test tests/home/hp-03-countdown-timers.spec.ts --debug
+
+# Keep the browser open after each test (headed + slow-mo)
+npx playwright test tests/home/ --project=chromium-guest --headed --slow-mo=500
+
+# Show trace viewer for the last run's trace.zip
+npx playwright show-trace test-results/<folder>/trace.zip
+```
+
+### Retries and workers
+
+```powershell
+# No retries (useful when diagnosing flaky tests)
+npx playwright test --retries=0
+
+# Run with a single worker (serial, easier to read logs)
+npx playwright test --workers=1
+
+# Run faster with more workers (authenticated tests only — setup must already exist)
+npx playwright test --project=chromium-auth --workers=3
+```
+
+### Reports
+
+```powershell
+# Open the HTML report from the last run
 npx playwright show-report
+
+# Re-run only the tests that failed in the last run
+npx playwright test --last-failed
 ```
 
 ---
