@@ -2,17 +2,23 @@ import { Page, Locator } from '@playwright/test';
 import { BaseComponent } from './BaseComponent';
 
 export class SmartFilterComponent extends BaseComponent {
+  readonly region: Locator;
+  readonly body: Locator;
   readonly toggleBtn: Locator;
   readonly filterChips: Locator;
+  readonly filterCheckboxes: Locator;
   readonly clearAllBtn: Locator;
 
   constructor(page: Page) {
     // Snapshot confirms: region with accessible name "Smart Filter"
     const root = page.getByRole('region', { name: 'Smart Filter' }).first();
     super(page, root);
-    this.toggleBtn  = root.getByRole('button', { name: 'Smart Filter' }).first();
-    this.filterChips = root.locator('.a-SF-chip, [class*="chip"], [class*="filter-value"]');
-    this.clearAllBtn = root.getByRole('button', { name: /clear all|reset/i }).first();
+    this.region          = root;
+    this.body            = root.locator('.t-Region-body.a-Collapsible-content');
+    this.toggleBtn       = root.getByRole('button', { name: 'Smart Filter' }).first();
+    this.filterChips     = root.locator('.a-SF-chip, [class*="chip"], [class*="filter-value"]');
+    this.filterCheckboxes = root.locator('.t-Region-body').getByRole('checkbox');
+    this.clearAllBtn     = root.getByRole('button', { name: /clear all|reset/i }).first();
   }
 
   async expand() {

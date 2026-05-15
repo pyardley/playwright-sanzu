@@ -33,7 +33,7 @@ test.describe('2 — Search and Filtering', () => {
     }
 
     // Expect: Other known products are not visible in the product grid
-    await expect(page.getByText('Samsung', { exact: false }).first()).not.toBeVisible({ timeout: 5_000 }).catch(() => {});
-    await expect(page.getByText('Infinix', { exact: false }).first()).not.toBeVisible({ timeout: 5_000 }).catch(() => {});
+    await expect(homePage.productGrid.getByText('Samsung', { exact: false }).first()).not.toBeVisible({ timeout: 5_000 }).catch(() => {});
+    await expect(homePage.productGrid.getByText('Infinix', { exact: false }).first()).not.toBeVisible({ timeout: 5_000 }).catch(() => {});
   });
 });

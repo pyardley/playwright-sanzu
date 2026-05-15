@@ -6,11 +6,18 @@ export class HeaderComponent extends BaseComponent {
   // Cart is a sidebar widget on the home page, not a header icon
   readonly cartWidget: Locator;
   readonly cartTotal: Locator;
+  readonly cartQtyHeader: Locator;
+  readonly cartTotalHeader: Locator;
   readonly userMenuTrigger: Locator;
   readonly myAccountBtn: Locator;
   readonly searchInput: Locator;
   readonly loginLink: Locator;
   readonly logoutLink: Locator;
+  readonly signUpLink: Locator;
+  readonly logoLink: Locator;
+  readonly homeLink: Locator;
+  readonly navButtons: Locator;
+  readonly loggedInIndicator: Locator;
 
   constructor(page: Page) {
     // APEX renders the site header as <header> → ARIA role "banner"
@@ -22,6 +29,8 @@ export class HeaderComponent extends BaseComponent {
     // Cart total link lives inside the Cart Region table; scope to that table to avoid
     // matching product price links elsewhere on the page that also start with digits.
     this.cartTotal     = page.getByRole('table', { name: /cart region/i }).getByRole('link').first();
+    this.cartQtyHeader   = this.cartWidget.getByRole('columnheader', { name: 'Qty' });
+    this.cartTotalHeader = this.cartWidget.getByRole('columnheader', { name: 'Total' });
     this.myAccountBtn  = page.getByRole('button', { name: /my account/i }).first();
     // When logged in, the username appears as a button in the nav list
     this.userMenuTrigger = page.locator('header').getByRole('list').getByRole('button').last();
@@ -33,6 +42,20 @@ export class HeaderComponent extends BaseComponent {
       .or(page.locator('a[href*="login_desktop"]'))
       .first();
     this.logoutLink    = page.getByRole('link', { name: /log.?out|sign.?out/i }).first();
+    this.signUpLink    = page.getByRole('link', { name: 'Sign Up' })
+      .or(page.locator('a[href*="sign-up"]'))
+      .first();
+    this.logoLink      = page.getByRole('link', { name: 'Demo Organization' }).first();
+    this.homeLink      = page.getByRole('link', { name: 'Home' })
+      .or(page.locator('a[href*="/home"]'))
+      .first();
+    this.navButtons    = page.getByRole('banner').getByRole('list').getByRole('button');
+    // Post-login indicator — My Account button, logout link, user nav item, or email-shaped button
+    this.loggedInIndicator = page.getByRole('button', { name: /my account/i })
+      .or(page.getByRole('link', { name: /log.?out|sign.?out/i }))
+      .or(page.locator('.t-NavigationBar-item--user'))
+      .or(page.getByRole('button', { name: /@|\.co\.|yahoo|gmail/i }))
+      .first();
   }
 
   async search(query: string) {

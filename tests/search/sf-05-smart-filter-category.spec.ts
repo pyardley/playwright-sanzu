@@ -19,15 +19,14 @@ test.describe('2 — Search and Filtering', () => {
     // Expect: Smart Filter body is visible.
     await homePage.smartFilter.expand();
 
-    const smartFilterBody = page.locator('#faceted-id .t-Region-body.a-Collapsible-content');
-    await expect(smartFilterBody).toBeVisible();
+    await expect(homePage.smartFilter.body).toBeVisible();
 
     // Step 3: Call homePage.smartFilter.selectFilterOption(categoryLabel) where categoryLabel is a known category.
     // APEX note: facet chips are rendered dynamically after expand.
     // Expect: A filter chip is added (homePage.smartFilter.getActiveFilters() returns a non-empty array).
     // Expect: Product list updates via APEX AJAX to show only products in that category.
     // Use the first available checkbox/option in the filter panel
-    const firstFilterOption = page.locator('#faceted-id .t-Region-body').getByRole('checkbox').first();
+    const firstFilterOption = homePage.smartFilter.filterCheckboxes.first();
     const categoryLabel = await firstFilterOption.textContent().then(t => t?.trim() ?? '').catch(() => '');
 
     await homePage.smartFilter.selectFilterOption(categoryLabel || 'Phones');

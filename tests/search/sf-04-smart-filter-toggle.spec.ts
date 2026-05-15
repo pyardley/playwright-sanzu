@@ -12,14 +12,11 @@ test.describe('2 — Search and Filtering', () => {
     // Step 1: Preconditions: guest. Navigate to /home via homePage fixture.
     await expect(page).toHaveURL(/\/home/);
 
-    // Step 2: Assert the Smart Filter region (homePage.smartFilter.root) is initially collapsed.
-    // Expect: CSS class 'is-collapsed' is present on the region element (#faceted-id).
+    // Step 2: Assert the Smart Filter region (homePage.smartFilter.region) is initially collapsed.
+    // Expect: CSS class 'is-collapsed' is present on the region element.
     // Expect: Smart Filter body (.t-Region-body.a-Collapsible-content) has display:none.
-    const smartFilterRoot = page.locator('#faceted-id');
-    await expect(smartFilterRoot).toHaveClass(/is-collapsed/);
-
-    const smartFilterBody = page.locator('#faceted-id .t-Region-body.a-Collapsible-content');
-    await expect(smartFilterBody).not.toBeVisible();
+    await expect(homePage.smartFilter.region).toHaveClass(/is-collapsed/);
+    await expect(homePage.smartFilter.body).not.toBeVisible();
 
     // Step 3: Call homePage.smartFilter.expand() which clicks the 'Smart Filter' button.
     // Expect: APEX collapsible region animates open.
@@ -27,14 +24,14 @@ test.describe('2 — Search and Filtering', () => {
     // Expect: The region body becomes visible.
     await homePage.smartFilter.expand();
 
-    await expect(smartFilterRoot).not.toHaveClass(/is-collapsed/);
-    await expect(smartFilterBody).toBeVisible();
+    await expect(homePage.smartFilter.region).not.toHaveClass(/is-collapsed/);
+    await expect(homePage.smartFilter.body).toBeVisible();
 
     // Step 4: Click the Smart Filter toggle button again to collapse.
     // Expect: Region returns to collapsed state.
     // Expect: 'is-collapsed' class is reapplied.
     await homePage.smartFilter.toggleBtn.click();
-    await expect(smartFilterRoot).toHaveClass(/is-collapsed/);
-    await expect(smartFilterBody).not.toBeVisible();
+    await expect(homePage.smartFilter.region).toHaveClass(/is-collapsed/);
+    await expect(homePage.smartFilter.body).not.toBeVisible();
   });
 });

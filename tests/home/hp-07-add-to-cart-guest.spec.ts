@@ -12,7 +12,7 @@ test.describe('1 — Home Page', () => {
     // APEX note: In guest state the button triggers an alert dialog 'Please login to keep
     // record your selection.' and then redirects to /login_desktop.
     page.once('dialog', dialog => dialog.accept());
-    await page.getByRole('button', { name: 'Add to Cart' }).first().click();
+    await homePage.addFirstProductToCart();
 
     // expect: Browser navigates to /login_desktop
     await expect(page).toHaveURL(/login_desktop/);

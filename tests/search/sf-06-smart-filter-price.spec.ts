@@ -19,16 +19,14 @@ test.describe('2 — Search and Filtering', () => {
     // Expect: Filter chip for the price range appears in active filters.
     await homePage.smartFilter.expand();
 
-    const smartFilterBody = page.locator('#faceted-id .t-Region-body.a-Collapsible-content');
-    await expect(smartFilterBody).toBeVisible();
+    await expect(homePage.smartFilter.body).toBeVisible();
 
     // Select the first price range option available in the filter
-    const priceCheckboxes = page.locator('#faceted-id .t-Region-body').getByRole('checkbox');
-    const priceCheckboxCount = await priceCheckboxes.count();
+    const priceCheckboxCount = await homePage.smartFilter.filterCheckboxes.count();
     expect(priceCheckboxCount).toBeGreaterThan(0);
 
     // Select the first price range option (lowest range)
-    const firstPriceOption = priceCheckboxes.first();
+    const firstPriceOption = homePage.smartFilter.filterCheckboxes.first();
     const priceLabel = await firstPriceOption.textContent().then(t => t?.trim() ?? '').catch(() => '');
     await homePage.smartFilter.selectFilterOption(priceLabel || 'Under 1,000');
 

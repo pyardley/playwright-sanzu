@@ -52,7 +52,7 @@ test.describe('1 — Home Page', () => {
 
     // expect: Known catalogue names appear in the product grid
     for (const name of KNOWN_CATALOGUE) {
-      await expect(page.getByText(new RegExp(name, 'i')).first()).toBeVisible();
+      await expect(homePage.productGrid.getByText(new RegExp(name, 'i')).first()).toBeVisible();
     }
 
     // Step 4: Assert the Discount Offer / HOT strip is visible.
@@ -60,8 +60,8 @@ test.describe('1 — Home Page', () => {
     // Note: the discount strip is a scrolling ticker — individual links may be off-screen.
     // Assert the strip container is visible and that at least one link exists (count > 0).
     await expect(homePage.discountOfferStrip).toBeVisible();
-    await expect(page.getByText('Discount Offer')).toBeVisible();
-    await expect(page.getByText('HOT', { exact: true }).first()).toBeVisible();
+    await expect(homePage.discountOfferLabel).toBeVisible();
+    await expect(homePage.hotLabel).toBeVisible();
     const stripLinks = homePage.discountOfferStrip.getByRole('link');
     expect(await stripLinks.count()).toBeGreaterThan(0);
   });

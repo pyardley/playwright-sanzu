@@ -10,8 +10,8 @@ test.describe('1 — Home Page', () => {
 
     // Step 2: Locate the Discount Offer strip via homePage.discountOfferStrip.
     // expect: Strip heading text includes 'Discount Offer' and 'HOT'
-    await expect(page.getByText('Discount Offer')).toBeVisible();
-    await expect(page.getByText('HOT', { exact: true })).toBeVisible();
+    await expect(homePage.discountOfferLabel).toBeVisible();
+    await expect(homePage.hotLabel).toBeVisible();
 
     // Step 3: Assert that no 'Add to Cart' button is present inside homePage.discountOfferStrip.
     // expect: getByRole('button', { name: 'Add to Cart' }) within the strip returns count 0

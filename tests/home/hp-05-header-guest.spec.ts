@@ -18,38 +18,28 @@ test.describe('1 — Home Page', () => {
     // expect: A link to the login page exists in the nav list
     await expect(homePage.header.loginLink).toBeVisible();
     // expect: Link with text 'Sign Up' exists in the nav list (or by href pattern)
-    await expect(
-      page.getByRole('link', { name: 'Sign Up' })
-        .or(page.locator('a[href*="sign-up"]'))
-        .first()
-    ).toBeVisible();
+    await expect(homePage.header.signUpLink).toBeVisible();
 
     // Step 4: Assert NO username button is visible (guest state only has Home, Login, Sign Up).
     // expect: No button matching the authenticated username pattern is visible in the nav list
-    const navList = page.getByRole('banner').getByRole('list');
-    await expect(navList.getByRole('button')).toHaveCount(0);
+    await expect(homePage.header.navButtons).toHaveCount(0);
 
     // Step 5: Assert the Cart Region table is visible with Qty and Total column headers.
     // expect: table[aria-label='Cart Region'] is visible
-    await expect(page.getByRole('table', { name: 'Cart Region' })).toBeVisible();
+    await expect(homePage.header.cartWidget).toBeVisible();
     // expect: Column headers 'Qty' and 'Total' are present
-    await expect(page.getByRole('columnheader', { name: 'Qty' })).toBeVisible();
-    await expect(page.getByRole('columnheader', { name: 'Total' })).toBeVisible();
+    await expect(homePage.header.cartQtyHeader).toBeVisible();
+    await expect(homePage.header.cartTotalHeader).toBeVisible();
     // expect: Total cell shows '0.00' for an empty session cart
-    await expect(page.getByRole('link', { name: '0.00', exact: true })).toBeVisible();
+    await expect(homePage.header.cartTotal).toHaveText('0.00');
 
     // Step 6: Click the 'Demo Organization' logo link in the header.
     // expect: Browser stays on or re-navigates to /home
-    // Use first() since mobile renders one Demo Organization link while desktop renders two.
-    await page.getByRole('link', { name: 'Demo Organization' }).first().click();
+    await homePage.header.logoLink.click();
     // expect: Page title remains 'Home'
     await expect(page).toHaveTitle('Home');
     await expect(page).toHaveURL(/\/home/);
     // Home link may have icon-only label on mobile, match by href as fallback
-    await expect(
-      page.getByRole('link', { name: 'Home' })
-        .or(page.locator('a[href*="/home"]'))
-        .first()
-    ).toBeVisible();
+    await expect(homePage.header.homeLink).toBeVisible();
   });
 });

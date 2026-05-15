@@ -12,6 +12,7 @@ export class ProductCardComponent extends BaseComponent {
   readonly discountBadge: Locator;
   readonly addToCartBtn: Locator;
   readonly detailLink: Locator;
+  readonly reviewText: Locator;
 
   constructor(page: Page, root: Locator) {
     super(page, root);
@@ -25,6 +26,7 @@ export class ProductCardComponent extends BaseComponent {
     this.addToCartBtn  = root.getByRole('button', { name: 'Add to Cart' }).first();
     // The product image link navigates to the product detail page
     this.detailLink    = root.getByRole('link', { name: /product pic|^add/i }).first();
+    this.reviewText    = root.getByText(/\(\d+(\.\d+)? \/ 5 from \d+ reviews\)/);
   }
 
   async getTitle(): Promise<string> {

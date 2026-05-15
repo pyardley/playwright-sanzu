@@ -26,12 +26,6 @@ test.describe('Authentication', () => {
     // After login APEX shows "My Account" button and username button in the nav bar
     // (Logout is inside the My Account dropdown, not directly visible).
     // Assert that a user-specific nav element is visible as evidence of successful login.
-    await expect(
-      loginPage.page.getByRole('button', { name: /my account/i })
-        .or(loginPage.page.getByRole('link', { name: /log.?out|sign.?out/i }))
-        .or(loginPage.page.locator('.t-NavigationBar-item--user'))
-        .or(loginPage.page.getByRole('button', { name: /@|\.co\.|yahoo|gmail/i }))
-        .first(),
-    ).toBeVisible();
+    await expect(loginPage.header.loggedInIndicator).toBeVisible();
   });
 });

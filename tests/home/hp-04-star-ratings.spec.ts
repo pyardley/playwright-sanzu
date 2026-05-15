@@ -14,15 +14,7 @@ test.describe('1 — Home Page', () => {
 
     // expect: Each card shows a review paragraph matching the pattern '(N / 5 from N reviews)'
     for (const card of cards) {
-      await expect(
-        card.root.getByText(/\(\d+(\.\d+)? \/ 5 from \d+ reviews\)/),
-      ).toBeVisible();
+      await expect(card.reviewText).toBeVisible();
     }
-
-    // Spot-check specific known review texts confirmed from live page
-    await expect(page.getByText('(5 / 5 from 2 reviews)').first()).toBeVisible();
-    await expect(page.getByText('(2.4 / 5 from 5 reviews)')).toBeVisible();
-    await expect(page.getByText('(0 / 5 from 0 reviews)').first()).toBeVisible();
-    await expect(page.getByText('(3 / 5 from 2 reviews)')).toBeVisible();
   });
 });

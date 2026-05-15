@@ -11,6 +11,8 @@ export class HomePage extends BasePage {
   // The product grid with Add to Cart buttons is a <ul> list below the offer banner
   readonly productGrid: Locator;
   readonly discountOfferStrip: Locator;
+  readonly discountOfferLabel: Locator;
+  readonly hotLabel: Locator;
   readonly noResultsMessage: Locator;
 
   constructor(page: Page) {
@@ -23,8 +25,10 @@ export class HomePage extends BasePage {
     }).first();
     // The top "Discount Offer / HOT" strip is a scrolling ticker with product links (no Add to Cart).
     // APEX renders it inside #stiker-container or a div with class ticker_holder.
-    this.discountOfferStrip = page.locator('#stiker-container, .ticker_holder, [id*="ticker"]').first();
-    this.noResultsMessage   = page.getByText(/no products|no results|nothing found/i).first();
+    this.discountOfferStrip  = page.locator('#stiker-container, .ticker_holder, [id*="ticker"]').first();
+    this.discountOfferLabel  = page.getByText('Discount Offer');
+    this.hotLabel            = page.getByText('HOT', { exact: true }).first();
+    this.noResultsMessage    = page.getByText(/no products|no results|nothing found/i).first();
   }
 
   async waitForProducts() {
