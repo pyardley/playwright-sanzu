@@ -22,8 +22,8 @@ export class SmartFilterComponent extends BaseComponent {
   }
 
   async expand() {
-    const expanded = await this.root.getAttribute('aria-expanded').catch(() => null);
-    if (expanded === 'false' || expanded === null) {
+    const isVisible = await this.body.isVisible().catch(() => false);
+    if (!isVisible) {
       await this.toggleBtn.click();
       await this.page.waitForLoadState('networkidle');
     }

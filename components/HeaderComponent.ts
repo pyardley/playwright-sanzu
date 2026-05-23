@@ -70,6 +70,12 @@ export class HeaderComponent extends BaseComponent {
     await this.page.waitForLoadState('networkidle');
   }
 
+  async clearSearch() {
+    await this.searchInput.fill('');
+    await this.searchInput.press('Enter');
+    await this.page.waitForLoadState('networkidle');
+  }
+
   async goToCart() {
     // Click the cart total link in the sidebar widget to reach the cart detail page
     await this.cartTotal.click();

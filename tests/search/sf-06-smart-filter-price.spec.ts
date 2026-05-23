@@ -1,9 +1,9 @@
 // spec: specs/sanzu.plan.md — Area 2: Search and Filtering
 // seed: fixtures/fixtures.ts
 
-import { test, expect } from '../../fixtures/fixtures';
+import { test, expect } from "../../fixtures/fixtures";
 
-test.describe('2 — Search and Filtering', () => {
+test.describe("2 — Search and Filtering", () => {
   // test.fixme: The APEX demo instance (Oracle Cloud free tier) does not maintain server-side
   // sessions across storageState restores. APEX renders the home page in guest mode even when
   // the ORA_WWV_APP_111 cookie is present (nav shows "Login"/"Sign Up", not a user menu).
@@ -11,7 +11,10 @@ test.describe('2 — Search and Filtering', () => {
   // options for unauthenticated sessions. The priceCheckboxCount assertion (> 0) fails because
   // the expanded filter panel contains zero checkboxes. The underlying session-persistence
   // limitation is in the APEX demo environment, not the test code.
-  test.fixme('SF-06 — Smart Filter by price range narrows product list (authenticated)', async ({ homePage, page }) => {
+  test.fixme("SF-06 — Smart Filter by price range narrows product list (authenticated)", async ({
+    homePage,
+    page,
+  }) => {
     // Step 1: Preconditions: authenticated user (storageState: .auth/user.json). Navigate to /home via homePage fixture.
     await expect(page).toHaveURL(/\/home/);
 
@@ -21,14 +24,8 @@ test.describe('2 — Search and Filtering', () => {
 
     await expect(homePage.smartFilter.body).toBeVisible();
 
-    // Select the first price range option available in the filter
-    const priceCheckboxCount = await homePage.smartFilter.filterCheckboxes.count();
-    expect(priceCheckboxCount).toBeGreaterThan(0);
-
-    // Select the first price range option (lowest range)
-    const firstPriceOption = homePage.smartFilter.filterCheckboxes.first();
-    const priceLabel = await firstPriceOption.textContent().then(t => t?.trim() ?? '').catch(() => '');
-    await homePage.smartFilter.selectFilterOption(priceLabel || 'Under 1,000');
+    // Select the lowest price range option (radio button — not a checkbox)
+    await homePage.smartFilter.selectFilterOption("500-1000");
 
     const activeFilters = await homePage.smartFilter.getActiveFilters();
     expect(activeFilters.length).toBeGreaterThan(0);
@@ -41,8 +38,10 @@ test.describe('2 — Search and Filtering', () => {
     expect(filteredCards.length).toBeLessThan(11);
 
     // Verify iPhone 16 Pro Max (84,000) is not visible in filtered results
-    const cardTitles = await Promise.all(filteredCards.map(c => c.getTitle()));
-    const hasIPhone = cardTitles.some(t => /iphone/i.test(t));
+    const cardTitles = await Promise.all(
+      filteredCards.map((c) => c.getTitle()),
+    );
+    const hasIPhone = cardTitles.some((t) => /iphone/i.test(t));
     expect(hasIPhone).toBe(false);
 
     // Step 4: Call homePage.smartFilter.clearAll() to reset.

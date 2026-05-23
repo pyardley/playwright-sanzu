@@ -1,9 +1,9 @@
 // spec: specs/sanzu.plan.md — Area 2: Search and Filtering
 // seed: fixtures/fixtures.ts
 
-import { test, expect } from '../../fixtures/fixtures';
+import { test, expect } from "../../fixtures/fixtures";
 
-test.describe('2 — Search and Filtering', () => {
+test.describe("2 — Search and Filtering", () => {
   // test.fixme: The APEX demo instance (Oracle Cloud free tier) does not maintain server-side
   // sessions across storageState restores. APEX renders the home page in guest mode even when
   // the ORA_WWV_APP_111 cookie is present (nav shows "Login"/"Sign Up", not a user menu).
@@ -11,7 +11,10 @@ test.describe('2 — Search and Filtering', () => {
   // options for unauthenticated sessions. selectFilterOption() times out because no checkboxes
   // exist in the expanded filter panel. The underlying session-persistence limitation is in the
   // APEX demo environment, not the test code.
-  test.fixme('SF-05 — Smart Filter by category narrows product list (authenticated)', async ({ homePage, page }) => {
+  test.fixme("SF-05 — Smart Filter by category narrows product list (authenticated)", async ({
+    homePage,
+    page,
+  }) => {
     // Step 1: Preconditions: authenticated user (storageState: .auth/user.json). Navigate to /home via homePage fixture.
     await expect(page).toHaveURL(/\/home/);
 
@@ -25,11 +28,7 @@ test.describe('2 — Search and Filtering', () => {
     // APEX note: facet chips are rendered dynamically after expand.
     // Expect: A filter chip is added (homePage.smartFilter.getActiveFilters() returns a non-empty array).
     // Expect: Product list updates via APEX AJAX to show only products in that category.
-    // Use the first available checkbox/option in the filter panel
-    const firstFilterOption = homePage.smartFilter.filterCheckboxes.first();
-    const categoryLabel = await firstFilterOption.textContent().then(t => t?.trim() ?? '').catch(() => '');
-
-    await homePage.smartFilter.selectFilterOption(categoryLabel || 'Phones');
+    await homePage.smartFilter.selectFilterOption("Mobile");
 
     const activeFilters = await homePage.smartFilter.getActiveFilters();
     expect(activeFilters.length).toBeGreaterThan(0);
