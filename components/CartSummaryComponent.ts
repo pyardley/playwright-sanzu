@@ -9,8 +9,11 @@ export class CartSummaryComponent extends BaseComponent {
   readonly emptyMessage: Locator;
 
   constructor(page: Page) {
+    // Root: the main cart content table (has "Product Name" column) or the Place Order link container
     const root = page
-      .locator('.t-Region--cart, [id*="CART_SUMMARY"], .cart-summary')
+      .getByRole('table')
+      .filter({ has: page.getByRole('columnheader', { name: 'Product Name' }) })
+      .or(page.locator('.t-Region--cart, [id*="CART_SUMMARY"], .cart-summary'))
       .first();
     super(page, root);
     this.items = root.locator('.t-Report-cell, .cart-item, [class*="cart-row"]');
@@ -20,8 +23,10 @@ export class CartSummaryComponent extends BaseComponent {
     this.total = root
       .locator('[class*="total"]:last-of-type, [data-id="total"]')
       .first();
+    // Cart detail page uses a "Place Order" link; product detail page has a "Checkout" button
     this.checkoutBtn = page
-      .getByRole('button', { name: /checkout|proceed/i })
+      .getByRole('link', { name: /place order/i })
+      .or(page.getByRole('button', { name: /checkout|proceed/i }))
       .or(page.locator('.t-Button--hot[id*="CHECKOUT"]'))
       .first();
     this.emptyMessage = root.getByText(/cart is empty|no items/i).first();

@@ -49,7 +49,9 @@ PCOM CONVENTIONS (mandatory — enforced by the fixture layer):
   Do NOT call homePage.goto() again at the start of home-page tests.
 - Wrap each logical step in a comment matching the plan step text (do not
   duplicate the comment when one step requires multiple tool calls).
-
+- There should be no locators in test spec.ts files. They should all be in ./page/*Page.ts or ./components/*Component.ts files as appropriate
+- ./tests/home/hp-nn-xxx.spec.ts and ./tests/search/sf-nn-xxx.spec.ts have alredy been generated. Follow the same format
+- Reuse components in ./components if possible
 ---
 
 TEST DESCRIBE / TITLE RULES:

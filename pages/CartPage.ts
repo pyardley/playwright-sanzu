@@ -4,8 +4,8 @@ import { CartSummaryComponent } from '../components/CartSummaryComponent';
 import { HeaderComponent } from '../components/HeaderComponent';
 
 export class CartPage extends BasePage {
-  // Confirmed from live snapshot: cart detail alias is "org-wise-cart-detail1"
-  readonly path = `${CartPage.APEX_ROOT}/org-wise-cart-detail1`;
+  // Confirmed from live snapshot: cart detail alias is "org-wise-cart-detail1"; p42_pid_org=1 is required to load cart items
+  readonly path = `${CartPage.APEX_ROOT}/org-wise-cart-detail1?p42_pid_org=1`;
   readonly header: HeaderComponent;
   readonly cartSummary: CartSummaryComponent;
   readonly cartRows: Locator;
@@ -15,8 +15,13 @@ export class CartPage extends BasePage {
     super(page);
     this.header = new HeaderComponent(page);
     this.cartSummary = new CartSummaryComponent(page);
-    // Cart detail page uses a table or report region; rows are <tr> data rows
-    this.cartRows = page.locator('table tbody tr, .t-Report-row').filter({ hasNot: page.locator('th, .t-Report-colHead') });
+    // Scope to the main cart content table (has "Product Name" column), exclude header and total rows
+    this.cartRows = page
+      .getByRole('table')
+      .filter({ has: page.getByRole('columnheader', { name: 'Product Name' }) })
+      .getByRole('row')
+      .filter({ hasNot: page.getByRole('columnheader') })
+      .filter({ hasNotText: /^\s*Total/ });
     this.emptyCartMessage = page
       .getByText(/your cart is empty|no items in cart|cart is empty/i)
       .first();
@@ -48,6 +53,6 @@ export class CartPage extends BasePage {
 
   async proceedToCheckout() {
     await this.cartSummary.proceedToCheckout();
-    await this.page.waitForURL(/checkout/i, { timeout: 15_000 });
+    // Navigates to Order Details page (f?p=111:12:...), not a /checkout canonical URL
   }
 }

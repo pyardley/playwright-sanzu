@@ -36,12 +36,18 @@ export class HeaderComponent extends BaseComponent {
     this.userMenuTrigger = page.locator('header').getByRole('list').getByRole('button').last();
     // Actual placeholder text confirmed from live page snapshot
     this.searchInput   = page.getByPlaceholder('Search Product').first();
-    // Guest state only — on mobile the nav link is icon-only (no accessible text),
-    // so also match by href pattern as a fallback.
-    this.loginLink     = page.getByRole('link', { name: /log.?in|sign.?in/i })
-      .or(page.locator('a[href*="login_desktop"]'))
+    // Guest state only — scoped to the header nav list to avoid matching sidebar
+    // "Admin Login" or other in-page login links. On mobile the nav link may be
+    // icon-only (no accessible text), so also match by href pattern as a fallback,
+    // but still scoped inside the banner.
+    this.loginLink     = page.getByRole('banner').getByRole('list')
+      .getByRole('link', { name: /^log.?in$|^sign.?in$/i })
+      .or(page.getByRole('banner').locator('a[href*="login_desktop"]'))
       .first();
-    this.logoutLink    = page.getByRole('link', { name: /log.?out|sign.?out/i }).first();
+    // APEX renders logout as a menuitem inside the user dropdown, not a link.
+    this.logoutLink    = page.getByRole('menuitem', { name: /log.?out|sign.?out/i })
+      .or(page.getByRole('link', { name: /log.?out|sign.?out/i }))
+      .first();
     this.signUpLink    = page.getByRole('link', { name: 'Sign Up' })
       .or(page.locator('a[href*="sign-up"]'))
       .first();
@@ -79,7 +85,11 @@ export class HeaderComponent extends BaseComponent {
   }
 
   async logout() {
-    await this.openUserMenu();
+    // Open the user menu only if it is not already expanded.
+    const menuAlreadyOpen = await this.logoutLink.isVisible({ timeout: 1_000 }).catch(() => false);
+    if (!menuAlreadyOpen) {
+      await this.openUserMenu();
+    }
     await this.logoutLink.click();
     await this.page.waitForLoadState('networkidle');
   }
