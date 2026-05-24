@@ -1,8 +1,15 @@
 test,elapsed_seconds,framework,timestamp
-3 — Authentication AUTH-01 — Successful login with valid credentials redirects to home,6.93,selenium-ruby,2026-05-24T11:15:51+01:00
-3 — Authentication AUTH-02 — Login with invalid password shows error message,4.51,selenium-ruby,2026-05-24T11:15:56+01:00
-5 — Cart Management CART-01 — Adding a product from home page updates cart sidebar total (authenticated),6.61,selenium-ruby,2026-05-24T11:16:03+01:00
-6 — Checkout CHK-01 — Proceed to checkout from cart navigates to checkout page (authenticated),8.09,selenium-ruby,2026-05-24T11:16:11+01:00
-1 — Home Page HP-01 — Product grid renders all catalogue items,14.89,selenium-ruby,2026-05-24T11:16:26+01:00
-4 — Product Detail Page PD-01 — Product detail page displays full product information,5.01,selenium-ruby,2026-05-24T11:16:31+01:00
-2 — Search and Filtering SF-04 — Smart Filter expands and collapses on toggle,46.18,selenium-ruby,2026-05-24T11:17:17+01:00
+1 — Home Page HP-01 — Product grid renders all catalogue items,16.08,selenium-ruby,2026-05-24T12:15:12+01:00
+1 — Home Page HP-01 — Product grid renders all catalogue items,4.07,playwright,2026-05-24T12:24:18+01:00
+2 — Search and Filtering SF-04 — Smart Filter expands and collapses on toggle,13.68,selenium-ruby,2026-05-24T12:15:31+01:00
+2 — Search and Filtering SF-04 — Smart Filter expands and collapses on toggle,3.74,playwright,2026-05-24T12:24:25+01:00
+3 — Authentication AUTH-01 — Successful login with valid credentials redirects to home,7.14,selenium-ruby,2026-05-24T12:14:31+01:00
+3 — Authentication AUTH-01 — Successful login with valid credentials redirects to home,6.56,playwright,2026-05-24T12:23:54+01:00
+3 — Authentication AUTH-02 — Login with invalid password shows error message,9.07,selenium-ruby,2026-05-24T12:14:40+01:00
+3 — Authentication AUTH-02 — Login with invalid password shows error message,3.79,playwright,2026-05-24T12:24:01+01:00
+4 — Product Detail Page PD-01 — Product detail page displays full product information,5.08,selenium-ruby,2026-05-24T12:15:17+01:00
+4 — Product Detail Page PD-01 — Product detail page displays full product information,2.73,playwright,2026-05-24T12:24:22+01:00
+5 — Cart Management CART-01 — Adding a product from home page updates cart sidebar total (authenticated),7.08,selenium-ruby,2026-05-24T12:14:48+01:00
+5 — Cart Management CART-01 — Adding a product from home page updates cart sidebar total (authenticated),6.40,playwright,2026-05-24T12:24:05+01:00
+6 — Checkout CHK-01 — Proceed to checkout from cart navigates to checkout page (authenticated),8.15,selenium-ruby,2026-05-24T12:14:56+01:00
+6 — Checkout CHK-01 — Proceed to checkout from cart navigates to checkout page (authenticated),6.91,playwright,2026-05-24T12:24:11+01:00

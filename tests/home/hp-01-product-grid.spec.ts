@@ -25,18 +25,12 @@ test.describe('1 — Home Page', () => {
     // expect: URL contains /home
     await expect(page).toHaveURL(/\/home/);
 
-    // Step 2: Call homePage.waitForProducts() and then homePage.getProductCards().
-    await homePage.waitForProducts();
-    const cards = await homePage.getProductCards();
+    // Step 2 & 3: Extract all card data in one browser round-trip instead of 3 per card.
+    const cardData = await homePage.getAllProductCardData();
     // expect: The returned array contains exactly 11 items
-    expect(cards).toHaveLength(11);
+    expect(cardData).toHaveLength(11);
 
-    // Step 3: For each card call card.getTitle(), card.getOriginalPrice(), card.getSalePrice().
-    for (const card of cards) {
-      const title = await card.getTitle();
-      const salePrice = await card.getSalePrice();
-      const originalPrice = await card.getOriginalPrice();
-
+    for (const { title, salePrice, originalPrice } of cardData) {
       // expect: getTitle() returns a non-empty string
       expect(title.length).toBeGreaterThan(0);
       // expect: getSalePrice() returns a non-empty string with numeric content

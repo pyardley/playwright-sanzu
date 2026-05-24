@@ -46,6 +46,64 @@ export class HomePage extends BasePage {
     );
   }
 
+  /**
+   * Extracts title, salePrice and originalPrice for every card in a single
+   * evaluate() call — one browser round-trip instead of 3 per card.
+   */
+  async getAllProductCardData(): Promise<Array<{ title: string; salePrice: string; originalPrice: string }>> {
+    await this.waitForProducts();
+    return this.productGrid.evaluate((ul: HTMLElement) => {
+      return Array.from(ul.querySelectorAll('li')).map((li) => {
+        // Title: first non-empty line from the info/name/detail section
+        const infoEl = li.querySelector('[class*="info"], [class*="name"], [class*="detail"]');
+        const title = infoEl
+          ? ((infoEl.textContent ?? '').split('\n').map((l: string) => l.trim()).filter(Boolean)[0] ?? '')
+          : '';
+
+        // Original price: struck-through element
+        const originalEl = li.querySelector('del, s, [class*="original"]');
+        const originalPrice = originalEl?.textContent?.trim() ?? '';
+
+        // Sale price — mirrors ProductCardComponent.getSalePrice() logic
+        let salePrice = '';
+        const priceEl = li.querySelector('[class*="price"]:not(del):not(s)');
+        if (priceEl?.textContent?.trim()) {
+          salePrice = priceEl.textContent.trim();
+        } else {
+          const del = li.querySelector('del, s');
+          if (del) {
+            const nextEl = del.nextElementSibling;
+            if (nextEl && !/^(del|s)$/i.test(nextEl.tagName)) {
+              const t = nextEl.textContent?.trim() ?? '';
+              if (t && /\d/.test(t)) salePrice = t;
+            }
+            if (!salePrice) {
+              let node: Node | null = del.nextSibling;
+              while (node) {
+                const t = (node.textContent ?? '').trim();
+                if (t && /\d/.test(t)) { salePrice = t; break; }
+                node = node.nextSibling;
+              }
+            }
+          }
+          if (!salePrice) {
+            const h3 = li.querySelector('h3');
+            if (h3) {
+              const walker = document.createTreeWalker(h3, NodeFilter.SHOW_TEXT);
+              let n: Node | null;
+              while ((n = walker.nextNode())) {
+                const t = (n.textContent ?? '').trim();
+                if (t && /[\d,]+\.\d{2}/.test(t)) { salePrice = t; break; }
+              }
+            }
+          }
+        }
+
+        return { title, salePrice, originalPrice };
+      });
+    });
+  }
+
   async getProductCardByName(name: string): Promise<ProductCardComponent> {
     const cards = await this.getProductCards();
     for (const card of cards) {
