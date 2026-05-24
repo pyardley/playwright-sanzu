@@ -22,9 +22,11 @@ class BasePage
 
   def wait_for_apex_ready(timeout: 20)
     Selenium::WebDriver::Wait.new(timeout: timeout).until do
-      @driver.execute_script(
-        "return typeof window.apex !== 'undefined' && window.apex.event !== undefined"
-      )
+      @driver.execute_script(<<~JS)
+        return document.readyState === 'complete' &&
+               typeof window.apex !== 'undefined' &&
+               window.apex.event !== undefined
+      JS
     end
   rescue Selenium::WebDriver::Error::TimeoutError
     # APEX may not be present on all pages (e.g. login page) — non-fatal
@@ -62,12 +64,11 @@ class BasePage
     @driver.execute_script(<<~JS, element, value)
       const el  = arguments[0];
       const val = arguments[1];
+      // Keep APEX internal state in sync for apex.submit() flows
       if (typeof apex !== 'undefined' && el.id) {
-        try {
-          apex.item(el.id).setValue(val);
-          return;
-        } catch(e) {}
+        try { apex.item(el.id).setValue(val); } catch(e) {}
       }
+      // Always update the DOM value for plain HTML form POST flows
       el.value = val;
       el.dispatchEvent(new Event('input',  {bubbles: true}));
       el.dispatchEvent(new Event('change', {bubbles: true}));
@@ -78,12 +79,15 @@ class BasePage
     @driver.find_elements(by, selector)
   end
 
-  # Replaces waitForLoadState('networkidle') — polls APEX AJAX busy state
+  # Replaces waitForLoadState('networkidle') — polls APEX AJAX busy state.
+  # document.readyState must be 'complete' in both branches so APEX's own
+  # $(document).ready() callbacks (including notification rendering) have run.
   def wait_for_apex_idle(timeout: 15)
     Selenium::WebDriver::Wait.new(timeout: timeout).until do
       @driver.execute_script(<<~JS)
+        if (document.readyState !== 'complete') return false;
         if (window.apex && window.apex.server) { return !window.apex.server.busy; }
-        return document.readyState === 'complete';
+        return true;
       JS
     end
   rescue Selenium::WebDriver::Error::TimeoutError

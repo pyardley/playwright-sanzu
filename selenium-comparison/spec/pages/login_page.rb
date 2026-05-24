@@ -5,20 +5,12 @@ SUBMIT_BTN_XPATH = "//button[@type='submit' or contains(@class,'t-Button--hot')]
 class LoginPage < BasePage
   def login_as(email, password)
     goto('login_desktop')
+    apex_set_credentials(email, password)
 
-    # Fill via JS — APEX inputs exist in the DOM before they are interactable,
-    # so send_keys raises ElementNotInteractableError. JS fill bypasses this.
-    email_field = find(:xpath, "//*[contains(@id,'USERNAME') or contains(@name,'USERNAME')]")
-    js_fill(email_field, email)
-
-    pwd_field = find(:xpath, "//*[contains(@id,'PASSWORD') or contains(@name,'PASSWORD')]")
-    js_fill(pwd_field, password)
-
-    # Submit — APEX login button uses .t-Button--hot (may not have type="submit")
     submit_btn = find(:xpath, SUBMIT_BTN_XPATH)
     submit_btn.click
 
-    wait_for_url(/home|dashboard/i, timeout: 20)
+    wait_for_url(/home|dashboard/i, timeout: 30)
   end
 
   def navigate_to_login
@@ -26,11 +18,7 @@ class LoginPage < BasePage
   end
 
   def fill_credentials(email, password)
-    email_field = find(:xpath, "//*[contains(@id,'USERNAME') or contains(@name,'USERNAME')]")
-    js_fill(email_field, email)
-
-    pwd_field = find(:xpath, "//*[contains(@id,'PASSWORD') or contains(@name,'PASSWORD')]")
-    js_fill(pwd_field, password)
+    apex_set_credentials(email, password)
   end
 
   def submit
@@ -39,13 +27,17 @@ class LoginPage < BasePage
   end
 
   def error_message
-    el = @driver.find_elements(:css, '.t-Alert--danger, .t-Alert--error, #APEX_ERROR_MESSAGE').first
+    el = @driver.find_elements(:css, '#t_Alert_Notification, .t-Alert--danger, .t-Alert--warning, .t-Alert--error, #APEX_ERROR_MESSAGE').first
     el&.text&.strip
   end
 
-  def error_visible?
-    els = @driver.find_elements(:css, '.t-Alert--danger, .t-Alert--error, #APEX_ERROR_MESSAGE, [class*="error-msg"]')
-    els.any?(&:displayed?)
+  def error_visible?(timeout: 8)
+    Selenium::WebDriver::Wait.new(timeout: timeout).until do
+      els = @driver.find_elements(:css, '#t_Alert_Notification, .t-Alert--danger, .t-Alert--warning, .t-Alert--error, #APEX_ERROR_MESSAGE, [class*="error-msg"]')
+      els.any?(&:displayed?)
+    end
+  rescue Selenium::WebDriver::Error::TimeoutError
+    false
   end
 
   def email_input_visible?
@@ -72,5 +64,18 @@ class LoginPage < BasePage
 
     # Also check for username-shaped button (email in nav)
     @driver.find_elements(:css, '.t-NavigationBar-item--user, [class*="user-menu"]').any?(&:displayed?)
+  end
+
+  private
+
+  # Sets login credentials via APEX's own item registry (apex.item().setValue()).
+  # XPath-based element finding matches the container DIV (P101_USERNAME_CONTAINER)
+  # rather than the actual input, so we bypass the DOM entirely and use APEX's API
+  # with the fixed page-item names for page 101 (the login page).
+  def apex_set_credentials(email, password)
+    @driver.execute_script(<<~JS, email, password)
+      apex.item('P101_USERNAME').setValue(arguments[0]);
+      apex.item('P101_PASSWORD').setValue(arguments[1]);
+    JS
   end
 end

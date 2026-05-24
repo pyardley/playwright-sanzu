@@ -1,1 +1,8 @@
 test,elapsed_seconds,framework,timestamp
+3 — Authentication AUTH-01 — Successful login with valid credentials redirects to home,6.93,selenium-ruby,2026-05-24T11:15:51+01:00
+3 — Authentication AUTH-02 — Login with invalid password shows error message,4.51,selenium-ruby,2026-05-24T11:15:56+01:00
+5 — Cart Management CART-01 — Adding a product from home page updates cart sidebar total (authenticated),6.61,selenium-ruby,2026-05-24T11:16:03+01:00
+6 — Checkout CHK-01 — Proceed to checkout from cart navigates to checkout page (authenticated),8.09,selenium-ruby,2026-05-24T11:16:11+01:00
+1 — Home Page HP-01 — Product grid renders all catalogue items,14.89,selenium-ruby,2026-05-24T11:16:26+01:00
+4 — Product Detail Page PD-01 — Product detail page displays full product information,5.01,selenium-ruby,2026-05-24T11:16:31+01:00
+2 — Search and Filtering SF-04 — Smart Filter expands and collapses on toggle,46.18,selenium-ruby,2026-05-24T11:17:17+01:00

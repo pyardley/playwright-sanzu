@@ -98,14 +98,20 @@ class HomePage < BasePage
     ''
   end
 
-  # Scrolls first Add to Cart button into view and clicks it
+  # Scrolls first Add to Cart button into view, clicks it, and waits for the
+  # cart sidebar total to change — mirrors Playwright's waitForLoadState('networkidle')
+  # without requiring a sleep, and handles AJAX calls not tracked by apex.server.busy.
   def add_first_product_to_cart
     btn = wait_for(timeout: 15) do
       @driver.find_element(:xpath, "//button[contains(.,'Add to Cart')]")
     end
     @driver.execute_script('arguments[0].scrollIntoView({block:"center"})', btn)
+
+    before = cart_total
     btn.click
-    # Wait for cart total to reflect the addition
+
+    wait_for(timeout: 15) { cart_total != before }
+  rescue Selenium::WebDriver::Error::TimeoutError
     wait_for_apex_idle
   end
 
