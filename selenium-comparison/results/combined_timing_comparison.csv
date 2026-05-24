@@ -1,0 +1,8 @@
+test_id,suite,test_title,selenium_s,playwright_s,diff_s,faster
+HP-01,1 — Home Page,Product grid renders all catalogue items,14.89,28.36,13.47,selenium
+SF-04,2 — Search and Filtering,Smart Filter expands and collapses on toggle,46.18,3.68,-42.50,playwright
+AUTH-01,3 — Authentication,Successful login with valid credentials redirects to home,6.93,6.54,-0.39,playwright
+AUTH-02,3 — Authentication,Login with invalid password shows error message,4.51,3.73,-0.78,playwright
+PD-01,4 — Product Detail Page,Product detail page displays full product information,5.01,2.60,-2.41,playwright
+CART-01,5 — Cart Management,Adding a product from home page updates cart sidebar total (authenticated),6.61,7.58,0.97,selenium
+CHK-01,6 — Checkout,Proceed to checkout from cart navigates to checkout page (authenticated),8.09,10.61,2.52,selenium

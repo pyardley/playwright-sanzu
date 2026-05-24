@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './BasePage';
 import { HeaderComponent } from '../components/HeaderComponent';
 import { ProductCardComponent } from '../components/ProductCardComponent';
@@ -58,8 +58,11 @@ export class HomePage extends BasePage {
   async addFirstProductToCart(): Promise<void> {
     const firstBtn = this.page.getByRole('button', { name: 'Add to Cart' }).first();
     await firstBtn.scrollIntoViewIfNeeded();
+    const beforeText = (await this.header.cartTotal.textContent({ timeout: 5_000 }).catch(() => '0.00'))?.trim() ?? '0.00';
     await firstBtn.click();
-    await this.page.waitForLoadState('networkidle');
+    // Wait for the cart sidebar to reflect the addition — stops as soon as the total changes,
+    // rather than waiting for all APEX background requests to settle (networkidle).
+    await expect(this.header.cartTotal).not.toHaveText(beforeText, { timeout: 15_000 });
   }
 
   async searchProducts(query: string) {

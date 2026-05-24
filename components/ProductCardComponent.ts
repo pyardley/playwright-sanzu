@@ -39,13 +39,15 @@ export class ProductCardComponent extends BaseComponent {
   }
 
   async getOriginalPrice(): Promise<string> {
-    return (await this.originalPrice.textContent({ timeout: 2_000 }).catch(() => null))?.trim() ?? '';
+    // timeout: 0 — products are already rendered; no del/s means no discount, return immediately
+    return (await this.originalPrice.textContent({ timeout: 0 }).catch(() => null))?.trim() ?? '';
   }
 
   async getSalePrice(): Promise<string> {
     // APEX renders the sale price as a text node or bare element adjacent to <del>/<s>.
     // The class-based locator is kept as a fast path; the evaluate fallback walks the DOM.
-    const fast = await this.salePrice.textContent({ timeout: 2_000 }).catch(() => null);
+    // timeout: 0 — if the class-based element isn't present at render time it won't appear later
+    const fast = await this.salePrice.textContent({ timeout: 0 }).catch(() => null);
     if (fast?.trim()) return fast.trim();
     return this.root.evaluate((li: HTMLElement) => {
       const del = li.querySelector('del, s');

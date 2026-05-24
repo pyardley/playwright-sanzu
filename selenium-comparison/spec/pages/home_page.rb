@@ -170,22 +170,19 @@ class HomePage < BasePage
     nil
   end
 
-  # APEX applies is-collapsed asynchronously during theme init — wait up to 15 s.
-  # If the class never appears, fall back to checking that the body is not displayed
-  # (the functional equivalent of collapsed).
-  def smart_filter_has_collapsed_class?
-    wait_for(timeout: 15) do
-      region = @driver.find_elements(:xpath, SMART_FILTER_XPATH).first
-      next false unless region
-      classes = region.attribute('class').to_s
-      if classes.include?('is-collapsed')
-        true
-      else
-        body = region.find_elements(:css, '.t-Region-body.a-Collapsible-content').first
-        body && !body.displayed?
-      end
+  # Immediate state read — no internal wait. Use wait_until{} in the caller.
+  # Falls back to checking body visibility when is-collapsed class is absent (APEX theme variants).
+  def smart_filter_collapsed?
+    region = @driver.find_elements(:xpath, SMART_FILTER_XPATH).first
+    return false unless region
+    classes = region.attribute('class').to_s
+    if classes.include?('is-collapsed')
+      true
+    else
+      body = region.find_elements(:css, '.t-Region-body.a-Collapsible-content').first
+      body ? !body.displayed? : false
     end
-  rescue Selenium::WebDriver::Error::TimeoutError
+  rescue StandardError
     false
   end
 
@@ -207,7 +204,7 @@ class HomePage < BasePage
   def click_smart_filter_toggle
     btn = smart_filter_toggle_btn
     btn&.click
-    wait_for_apex_idle(timeout: 5)
+    # No wait_for_apex_idle — smart filter toggle is a CSS animation, not an AJAX call
   end
 
   # Cart link navigation (HeaderComponent.goToCart equivalent)

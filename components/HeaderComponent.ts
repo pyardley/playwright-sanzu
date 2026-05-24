@@ -79,7 +79,7 @@ export class HeaderComponent extends BaseComponent {
   async goToCart() {
     // Click the cart total link in the sidebar widget to reach the cart detail page
     await this.cartTotal.click();
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForURL(/org-wise-cart|cart\.detail/i, { waitUntil: 'domcontentloaded', timeout: 20_000 });
   }
 
   async getCartTotal(): Promise<string> {

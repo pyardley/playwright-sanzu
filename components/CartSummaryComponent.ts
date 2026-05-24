@@ -42,6 +42,8 @@ export class CartSummaryComponent extends BaseComponent {
 
   async proceedToCheckout() {
     await this.checkoutBtn.click();
-    await this.page.waitForLoadState('networkidle');
+    // domcontentloaded resolves as soon as the Order Details DOM is ready;
+    // the caller's toHaveTitle assertion auto-waits for the title to confirm arrival.
+    await this.page.waitForLoadState('domcontentloaded');
   }
 }

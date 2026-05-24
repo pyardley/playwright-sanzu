@@ -12,24 +12,21 @@ RSpec.describe '2 — Search and Filtering' do
     expect(@driver.current_url).to match(/\/home/)
 
     # Initially collapsed
-    expect(home.smart_filter_has_collapsed_class?).to be(true)
+    expect(home.smart_filter_collapsed?).to be(true)
     expect(home.smart_filter_body_visible?).to be(false)
 
-    # Expand
+    # Expand — wait_until polls smart_filter_collapsed? until it flips
     home.click_smart_filter_toggle
+    wait_until(timeout: 5) { !home.smart_filter_collapsed? }
 
-    # Give APEX animation time to complete
-    wait_until(timeout: 5) { !home.smart_filter_has_collapsed_class? }
-
-    expect(home.smart_filter_has_collapsed_class?).to be(false)
+    expect(home.smart_filter_collapsed?).to be(false)
     expect(home.smart_filter_body_visible?).to be(true)
 
     # Collapse again
     home.click_smart_filter_toggle
+    wait_until(timeout: 5) { home.smart_filter_collapsed? }
 
-    wait_until(timeout: 5) { home.smart_filter_has_collapsed_class? }
-
-    expect(home.smart_filter_has_collapsed_class?).to be(true)
+    expect(home.smart_filter_collapsed?).to be(true)
     expect(home.smart_filter_body_visible?).to be(false)
   end
 end

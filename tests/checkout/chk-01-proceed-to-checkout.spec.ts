@@ -2,13 +2,16 @@
 // seed: fixtures/fixtures.ts
 
 import { test, expect } from '../../fixtures/fixtures';
+import { HomePage } from '../../pages/HomePage';
 
 test.use({ storageState: '.auth/user.json' });
 
 test.describe('6 — Checkout', () => {
-  test('CHK-01 — Proceed to checkout from cart navigates to checkout page (authenticated)', async ({ homePage, cartPage, checkoutPage, loginPage }) => {
-    // Precondition: ensure an active APEX session by logging in explicitly.
+  test('CHK-01 — Proceed to checkout from cart navigates to checkout page (authenticated)', async ({ page, cartPage, loginPage }) => {
+    // Log in explicitly to ensure a valid APEX session.
+    // Using page + loginPage (not homePage fixture) avoids a redundant goto(/home) before login.
     await loginPage.loginAs(process.env.TEST_USER_EMAIL!, process.env.TEST_USER_PASSWORD!);
+    const homePage = new HomePage(page); // already on /home after loginAs — no extra goto()
 
     // Step 1: Add first product to cart and navigate to cart detail page
     await homePage.addFirstProductToCart();

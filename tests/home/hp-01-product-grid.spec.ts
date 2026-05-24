@@ -50,10 +50,12 @@ test.describe('1 — Home Page', () => {
       }
     }
 
-    // expect: Known catalogue names appear in the product grid
-    for (const name of KNOWN_CATALOGUE) {
-      await expect(homePage.productGrid.getByText(new RegExp(name, 'i')).first()).toBeVisible();
-    }
+    // expect: Known catalogue names appear in the product grid (checked in parallel)
+    await Promise.all(
+      KNOWN_CATALOGUE.map(name =>
+        expect(homePage.productGrid.getByText(new RegExp(name, 'i')).first()).toBeVisible(),
+      ),
+    );
 
     // Step 4: Assert the Discount Offer / HOT strip is visible.
     // expect: Strip is visible and contains at least one product link
